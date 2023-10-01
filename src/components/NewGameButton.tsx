@@ -16,5 +16,5 @@ export const NewGameButton = () => {
     window.location.pathname = `/${gameId}`;
   };
 
-  return <a onClick={onClickNewGame}>New Game</a>
+  return <a className="hover:text-slate-400 my-2 h-12 w-1/3 flex justify-center items-center" onClick={onClickNewGame}>New Game</a>
 };

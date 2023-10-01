@@ -19,7 +19,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <main className="min-h-screen p-24">{children}</main>
+          <main className="min-h-screen p-24">
+            <div className="max-w-5xl w-full items-center justify-between font-mono text-sm flex flex-col mx-auto">
+              <h1 className="text-3xl font-bold my-2">Fast Fill ⚡️</h1>
+              {children}
+            </div>
+          </main>
         </Providers>
       </body>
     </html>
