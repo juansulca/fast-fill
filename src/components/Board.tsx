@@ -61,24 +61,33 @@ const Cell = ({
 
 export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
   const isRed = isRedPlayer(game?.redPlayer);
-  const { data, refetch } = useQuery({
+  const { data } = useQuery({
     queryKey: ["gameQuery"],
     queryFn: getGame(gameId),
     initialData: game,
   });
 
+  const [gameState, setGameState] = useState({...data as Game});
+
   useEffect(() => {
     const gameChannel = wsClient.subscribe(channelTemplate(gameId));
     gameChannel.bind(boardUpdateEvent, ({ index, value }: BoardUpdate) => {
-      // refetch();
+      setGameState((prev) => {
+        const { board } = prev as Game;
+        board[index] = value;
+        return {...prev, board};
+      });
+      console.log(index, value);
     });
-  });
+
+    return () => { gameChannel.unsubscribe(); }
+  }, [gameId]);
 
   return (
     <>
       <div className="grid grid-cols-4 grid-rows-4 w-96">
-        {data?.board.map((cell, index) => (
-          <Cell key={`cell-${index}`} pos={index} state={cell} gameId={gameId} isRed={isRed} />
+        {gameState?.board.map((cell, index) => (
+          <Cell key={`cell-${index}-${cell}`} pos={index} state={cell} gameId={gameId} isRed={isRed} />
         ))}
       </div>
     </>
