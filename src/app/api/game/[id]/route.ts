@@ -24,13 +24,19 @@ export async function POST(
   const game = await db.getGame(id);
   game.board[index] = value;
 
-  if(value === 'red') {
-    game.redScore = game.board.filter(cell => cell === 'red').length ?? 0;
-    wsServer.triggerScoreUpdate(id, { player: 'red', score: game.redScore });
-  } else {
-    game.blueScore = game.board.filter(cell => cell === 'blue').length ?? 0;
-    wsServer.triggerScoreUpdate(id, { player: 'blue', score: game.blueScore })
+  const score = game.board.filter(cell => cell === value).length ?? 0;
+  wsServer.triggerScoreUpdate(id, { player: value, score: score });
+
+  if (score >= 4) {
+    wsServer.triggerEndGame(id, { winner: value });
   }
+  // if(value === 'red') {
+  //   const score = game.board.filter(cell => cell === 'red').length ?? 0;
+  //   wsServer.triggerScoreUpdate(id, { player: 'red', score: score });
+  // } else {
+  //   const blueScore = game.board.filter(cell => cell === 'blue').length ?? 0;
+  //   wsServer.triggerScoreUpdate(id, { player: 'blue', score: blueScore });
+  // }
 
   db.updateGame(id, game);
 

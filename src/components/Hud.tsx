@@ -1,6 +1,7 @@
 "use client";
 
-import { channelTemplate, scoreUpdateEvent } from "@/app/constants";
+import { channelTemplate, endGameEvent, scoreUpdateEvent } from "@/app/constants";
+import { EndGameMessage } from "@/model/endGameMessage";
 import { Game } from "@/model/game";
 import { ScoreUpdate } from "@/model/scoreUpdate";
 import { getGame } from "@/utils/getGame";
@@ -31,6 +32,10 @@ export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
         setRedScore(score);
       else
         setBlueScore(score);
+    });
+
+    gameChannel.bind(endGameEvent, ({ winner }: EndGameMessage) => {
+      alert(`Player: ${winner} wins!`);
     });
 
     return () => {

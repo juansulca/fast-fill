@@ -1,5 +1,6 @@
-import { channelTemplate, boardUpdateEvent, scoreUpdateEvent, startGameEvent } from '@/app/constants';
+import { channelTemplate, boardUpdateEvent, scoreUpdateEvent, startGameEvent, endGameEvent } from '@/app/constants';
 import { BoardUpdate } from '@/model/boardUpdate';
+import { EndGameMessage } from '@/model/endGameMessage';
 import { ScoreUpdate } from '@/model/scoreUpdate';
 import Pusher from 'pusher';
 
@@ -28,8 +29,8 @@ class WS {
     this.pusher.trigger(channelTemplate(gameId), startGameEvent, message);
   }
 
-  triggerEndGame(gameId: string) {
-    this.pusher.trigger(channelTemplate(gameId), startGameEvent, {});
+  triggerEndGame(gameId: string, message: EndGameMessage) {
+    this.pusher.trigger(channelTemplate(gameId), endGameEvent, message);
   }
 }
 

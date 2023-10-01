@@ -15,8 +15,6 @@ class DataBase {
       id: gameId,
       board: Array(16).fill('empty'),
       redPlayer: playerId,
-      redScore: 0,
-      blueScore: 0,
     };
 
     await this.redis.set(gameId, game, { ex: EntryTTL });

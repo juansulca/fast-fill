@@ -7,6 +7,4 @@ export interface Game {
   board: Board;
   redPlayer?: string;
   bluePlayer?: string;
-  redScore: number;
-  blueScore: number;
 }
