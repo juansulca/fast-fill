@@ -30,13 +30,6 @@ export async function POST(
   if (score >= 4) {
     wsServer.triggerEndGame(id, { winner: value });
   }
-  // if(value === 'red') {
-  //   const score = game.board.filter(cell => cell === 'red').length ?? 0;
-  //   wsServer.triggerScoreUpdate(id, { player: 'red', score: score });
-  // } else {
-  //   const blueScore = game.board.filter(cell => cell === 'blue').length ?? 0;
-  //   wsServer.triggerScoreUpdate(id, { player: 'blue', score: blueScore });
-  // }
 
   db.updateGame(id, game);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { boardUpdateEvent, channelTemplate } from "@/app/constants";
+import { boardUpdateEvent, channelTemplate, endGameEvent } from "@/app/constants";
 import { BoardUpdate } from "@/model/boardUpdate";
 import { CellState, Game } from "@/model/game";
 import { getGame } from "@/utils/getGame";
@@ -23,11 +23,13 @@ const Cell = ({
   state = "empty",
   gameId,
   isRed,
+  isGameActive
 }: {
   pos: number;
   state?: CellState;
   gameId: string;
   isRed: boolean;
+  isGameActive: boolean;
 }) => {
   const [color, setColor] = useState<CellState>(state);
   const playerColor = isRed ? "red" : "blue";
@@ -38,6 +40,7 @@ const Cell = ({
   });
 
   const onClick = () => {
+    if (!isGameActive) return;
     if (color === "empty") {
       setColor(playerColor);
       mutation.mutate({
@@ -68,6 +71,7 @@ export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
   });
 
   const [gameState, setGameState] = useState({...data as Game});
+  const [isGameActive, setIsGameActive] = useState(true);
 
   useEffect(() => {
     const gameChannel = wsClient.subscribe(channelTemplate(gameId));
@@ -80,6 +84,10 @@ export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
       console.log(index, value);
     });
 
+    gameChannel.bind(endGameEvent, () => {
+      setIsGameActive(false);
+    });
+
     return () => { gameChannel.unsubscribe(); }
   }, [gameId]);
 
@@ -87,7 +95,7 @@ export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
     <>
       <div className="grid grid-cols-4 grid-rows-4 w-96">
         {gameState?.board.map((cell, index) => (
-          <Cell key={`cell-${index}-${cell}`} pos={index} state={cell} gameId={gameId} isRed={isRed} />
+          <Cell key={`cell-${index}-${cell}`} pos={index} state={cell} gameId={gameId} isRed={isRed} isGameActive={isGameActive} />
         ))}
       </div>
     </>

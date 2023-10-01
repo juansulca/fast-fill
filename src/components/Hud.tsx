@@ -10,6 +10,7 @@ import { getUserId } from "@/utils/userSession";
 import { wsClient } from "@/utils/wsClient";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { Timer } from "./Timer";
 
 export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
   const { data } = useQuery({
@@ -24,6 +25,7 @@ export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
   const player = isRedPlayer(data.redPlayer) ? "red" : "blue";
   const [rScore, setRedScore] = useState(board.filter(cell => cell === 'red').length ?? 0);
   const [bScore, setBlueScore] = useState(board.filter(cell => cell === 'blue').length ?? 0);
+  const [winner, setWinner] = useState('');
   
   useEffect(() => {
     const gameChannel = wsClient.subscribe(channelTemplate(gameId));
@@ -35,7 +37,7 @@ export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
     });
 
     gameChannel.bind(endGameEvent, ({ winner }: EndGameMessage) => {
-      alert(`Player: ${winner} wins!`);
+      setWinner(winner);
     });
 
     return () => {
@@ -48,12 +50,15 @@ export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
       <div>
         client: {userId} - playing as: {player}
       </div>
+      {winner && <div>
+        🎉🎉{winner} wins! 🎉🎉
+      </div>}
       <div className="flex w-96 justify-between mt-6">
         <div className="grid grid-cols-1 grid-rows-2">
           <div className={`text-red-400 ${player === "red" && 'underline'}`}>Red: {rScore}</div>
           <div className={`text-indigo-400 ${player === "blue" && 'underline'}`}>Blue: {bScore}</div>
         </div>
-        <div>Time: {time}</div>
+        <Timer gameId={gameId}/>
       </div>
     </>
   );
