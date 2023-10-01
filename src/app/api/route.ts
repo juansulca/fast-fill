@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   const { userId } = await req.json();
   const gameId = id();
 
-  db.createNewGame(gameId, userId);
+  db.createGame(gameId, userId);
 
   return Response.json({ gameId });
 }

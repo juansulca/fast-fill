@@ -1,53 +1,85 @@
 "use client";
 
-import { CellState } from "@/model/game";
-import { useState } from "react";
+import { boardUpdateEvent, channelTemplate } from "@/app/constants";
+import { BoardUpdate } from "@/model/boardUpdate";
+import { CellState, Game } from "@/model/game";
+import { getGame } from "@/utils/getGame";
+import { isRedPlayer } from "@/utils/player";
+import { updateBoard } from "@/utils/updateBoard";
+import { wsClient } from "@/utils/wsClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 const getCellColor = (state: CellState) => {
-  if (state === 'red')
-    return 'bg-red-400';
+  if (state === "red") return "bg-red-400";
 
-  if (state === 'blue')
-    return 'bg-indigo-400';
+  if (state === "blue") return "bg-indigo-400";
 
-  return 'bg-gray-400';
-}
+  return "bg-gray-400";
+};
 
-const Cell = ({ text, state = 'empty' }: { text: string, state?: CellState }) => {
+const Cell = ({
+  pos,
+  state = "empty",
+  gameId,
+  isRed,
+}: {
+  pos: number;
+  state?: CellState;
+  gameId: string;
+  isRed: boolean;
+}) => {
   const [color, setColor] = useState<CellState>(state);
+  const playerColor = isRed ? "red" : "blue";
+  const mutation = useMutation({
+    mutationKey: ["updateBoard"],
+    mutationFn: ({ id, message }: { id: string; message: BoardUpdate }) =>
+      updateBoard(id, message),
+  });
 
   const onClick = () => {
-    if (color === 'empty')
-      setColor('red');
+    if (color === "empty") {
+      setColor(playerColor);
+      mutation.mutate({
+        id: gameId,
+        message: { index: pos, value: playerColor },
+      });
+    }
   };
 
   return (
-    <div onClick={onClick} className={`h-24 w-24 ${getCellColor(color)} flex items-center justify-center border border-solid`}>
-      {text}
+    <div
+      onClick={onClick}
+      className={`h-24 w-24 ${getCellColor(
+        color
+      )} flex items-center justify-center border border-solid`}
+    >
+      {pos}
     </div>
   );
 };
 
-export const Board = () => {
+export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
+  const isRed = isRedPlayer(game?.redPlayer);
+  const { data, refetch } = useQuery({
+    queryKey: ["gameQuery"],
+    queryFn: getGame(gameId),
+    initialData: game,
+  });
+
+  useEffect(() => {
+    const gameChannel = wsClient.subscribe(channelTemplate(gameId));
+    gameChannel.bind(boardUpdateEvent, ({ index, value }: BoardUpdate) => {
+      // refetch();
+    });
+  });
+
   return (
     <>
       <div className="grid grid-cols-4 grid-rows-4 w-96">
-        <Cell text="0" />
-        <Cell text="1" />
-        <Cell text="2" />
-        <Cell text="3" />
-        <Cell text="4" />
-        <Cell text="5" />
-        <Cell text="6" />
-        <Cell text="7" />
-        <Cell text="8" />
-        <Cell text="9" />
-        <Cell text="10" />
-        <Cell text="11" />
-        <Cell text="12" />
-        <Cell text="13" />
-        <Cell text="14" />
-        <Cell text="15" />
+        {data?.board.map((cell, index) => (
+          <Cell key={`cell-${index}`} pos={index} state={cell} gameId={gameId} isRed={isRed} />
+        ))}
       </div>
     </>
   );

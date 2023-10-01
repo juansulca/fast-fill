@@ -10,11 +10,13 @@ class DataBase {
     this.redis = Redis.fromEnv();
   }
 
-  async createNewGame(gameId: string, playerId: string) {
+  async createGame(gameId: string, playerId: string) {
     const game: Game = {
       id: gameId,
       board: Array(16).fill('empty'),
       redPlayer: playerId,
+      redScore: 0,
+      blueScore: 0,
     };
 
     await this.redis.set(gameId, game, { ex: EntryTTL });
@@ -22,10 +24,16 @@ class DataBase {
     return gameId;
   }
 
-  async getEntry(id: string) {
+  async getGame(id: string): Promise<Game> {
     const result = await this.redis.get(id);
 
-    return result;
+    return result as Game;
+  }
+
+  async updateGame(id: string, game: Game): Promise<Game> {
+    const result = await this.redis.set(id, game);
+
+    return game;
   }
 
 }

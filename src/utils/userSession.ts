@@ -13,4 +13,7 @@ export const getOrCreateUserId = () => {
   return userId;
 };
 
-export const getUserId = () => sessionStorage.getItem(userIdKey);
+export const getUserId = () => {
+  const userId = sessionStorage.getItem(userIdKey);
+  return userId;
+};
