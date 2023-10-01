@@ -31,7 +31,7 @@ class DataBase {
   }
 
   async updateGame(id: string, game: Game): Promise<Game> {
-    const result = await this.redis.set(id, game);
+    const result = await this.redis.set(id, game, { ex: EntryTTL });
 
     return game;
   }

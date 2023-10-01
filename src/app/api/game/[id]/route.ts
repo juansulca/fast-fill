@@ -23,6 +23,15 @@ export async function POST(
 
   const game = await db.getGame(id);
   game.board[index] = value;
+
+  if(value === 'red') {
+    game.redScore = game.board.filter(cell => cell === 'red').length ?? 0;
+    wsServer.triggerScoreUpdate(id, { player: 'red', score: game.redScore });
+  } else {
+    game.blueScore = game.board.filter(cell => cell === 'blue').length ?? 0;
+    wsServer.triggerScoreUpdate(id, { player: 'blue', score: game.blueScore })
+  }
+
   db.updateGame(id, game);
 
   return Response.json({ ok: true });
