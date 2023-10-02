@@ -1,3 +1,4 @@
+import { EndGameMessage } from "@/model/endGameMessage";
 import { db } from "@/utils/database";
 import { wsServer } from "@/utils/wsServer";
 
@@ -27,8 +28,18 @@ export async function POST(
   const score = game.board.filter(cell => cell === value).length ?? 0;
   wsServer.triggerScoreUpdate(id, { player: value, score: score });
 
-  if (score >= 4) {
-    wsServer.triggerEndGame(id, { winner: value });
+  const emptyCells = game.board.filter(cell => cell === 'empty').length ?? 0;
+
+  if (emptyCells <= 0) {
+    const redScore = game.board.filter(cell => cell === 'red').length ?? 0;
+    const blueScore = game.board.filter(cell => cell === 'blue').length ?? 0;
+    let winner: EndGameMessage["winner"] = 'no one';
+    if (redScore > 8) {
+      winner = 'red';
+    } else if (blueScore > 8) {
+      winner = 'blue';
+    }
+    wsServer.triggerEndGame(id, { winner });
   }
 
   db.updateGame(id, game);

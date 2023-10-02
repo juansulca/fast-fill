@@ -1,3 +1,3 @@
 export interface EndGameMessage {
-  winner: 'red' | 'blue'
+  winner: 'red' | 'blue' | 'no one'
 }

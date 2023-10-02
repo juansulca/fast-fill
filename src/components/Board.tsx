@@ -1,6 +1,6 @@
 "use client";
 
-import { boardUpdateEvent, channelTemplate, endGameEvent } from "@/app/constants";
+import { boardUpdateEvent, channelTemplate, endGameEvent, startGameEvent } from "@/app/constants";
 import { BoardUpdate } from "@/model/boardUpdate";
 import { CellState, Game } from "@/model/game";
 import { getGame } from "@/utils/getGame";
@@ -71,7 +71,7 @@ export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
   });
 
   const [gameState, setGameState] = useState({...data as Game});
-  const [isGameActive, setIsGameActive] = useState(true);
+  const [isGameActive, setIsGameActive] = useState(false);
 
   useEffect(() => {
     const gameChannel = wsClient.subscribe(channelTemplate(gameId));
@@ -81,7 +81,10 @@ export const Board = ({ gameId, game }: { gameId: string; game?: Game }) => {
         board[index] = value;
         return {...prev, board};
       });
-      console.log(index, value);
+    });
+
+    gameChannel.bind(startGameEvent, () => {
+      setIsGameActive(true);
     });
 
     gameChannel.bind(endGameEvent, () => {

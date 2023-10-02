@@ -20,7 +20,6 @@ export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
   });
 
   const { board } = data;
-  const time = "1:23";
   const userId = getUserId();
   const player = isRedPlayer(data.redPlayer) ? "red" : "blue";
   const [rScore, setRedScore] = useState(board.filter(cell => cell === 'red').length ?? 0);
@@ -51,7 +50,7 @@ export const Hud = ({ gameId, game }: { gameId: string; game: Game }) => {
         client: {userId} - playing as: {player}
       </div>
       {winner && <div>
-        🎉🎉{winner} wins! 🎉🎉
+        🎉🎉 {winner} wins! 🎉🎉
       </div>}
       <div className="flex w-96 justify-between mt-6">
         <div className="grid grid-cols-1 grid-rows-2">
