@@ -1,14 +1,16 @@
 "use client";
 
 import { getOrCreateUserId } from "@/utils/userSession";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export const JoinGameButton = () => {
+  const router = useRouter();
   const [gameId, setGameId] = useState('');
 
   const onClickJoinGame = async () => {
     const userId = getOrCreateUserId();
-    window.location.pathname = `/${gameId}`;
+    router.push(`/${gameId}`);
   };
   
   return (<div className="flex flex-col items-center my-2">
